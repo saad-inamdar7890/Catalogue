@@ -1,12 +1,23 @@
 package com.application.catalogue.Product;
 
-import java.awt.Image;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class product {
 
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product {
+
+    @Id
     private String article;
     private String brand;
     private String colour;
@@ -18,9 +29,9 @@ public class product {
 
     // Constructors, Getters, and Setters
 
-    public product() {}
+    public Product() {}
 
-    public product(String article, String brand, String colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images) {
+    public Product(String article, String brand, String colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images) {
         this.article = article;
         this.brand = brand;
         this.colour = colour;
