@@ -34,6 +34,8 @@ public class Product {
 
     private LocalDateTime definedDate;
 
+    private String category;
+
     // Constructors, Getters, and Setters
 
     @PrePersist
@@ -43,7 +45,7 @@ public class Product {
 
     public Product() {}
 
-    public Product(String article, String brand, List<String> colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images, boolean Trend) {
+    public Product(String article, String category, String brand, List<String> colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images, boolean Trend) {
         this.article = article;
         this.brand = brand;
         this.colour = colour;
@@ -53,6 +55,23 @@ public class Product {
         this.bundleSize = bundleSize;
         this.images = images;
         this.Trend = Trend;
+        this.category = category;
+    }
+
+    public LocalDateTime getDefinedDate() {
+        return definedDate;
+    }
+
+    public void setDefinedDate(LocalDateTime definedDate) {
+        this.definedDate = definedDate;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public boolean isTrend() {
