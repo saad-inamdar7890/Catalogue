@@ -12,4 +12,10 @@ public interface ProductServicePublic {
 
     Product updateProduct(Product product, String Article);
 
+    List<Product> getTrends();
+
+    public List<Product> getProductsRegisteredWithin7Days();
+
+
+    public List<Product> getProductsByCategory(String category);
 }

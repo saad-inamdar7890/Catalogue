@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,5 +45,18 @@ public class ProductServicePublicImpl implements ProductServicePublic{
 
     }
 
+    @Override
+    public List<Product> getTrends() {
+        return productRepo.findByTrendTrue();
+    }
 
+    public List<Product> getProductsRegisteredWithin7Days() {
+        LocalDateTime DaysAgo = LocalDateTime.now().minusDays(7);
+        return productRepo.findByRegisteredDateAfter(DaysAgo);
+    }
+
+
+    public List<Product> getProductsByCategory(String category) {
+        return productRepo.findByCategory(category);
+    }
 }
