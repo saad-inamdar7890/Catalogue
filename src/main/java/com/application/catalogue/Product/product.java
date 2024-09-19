@@ -2,11 +2,14 @@ package com.application.catalogue.Product;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,18 +23,27 @@ public class Product {
     @Id
     private String article;
     private String brand;
-    private String colour;
+    private List<String> colour;
     private float rate;
     private List<String> sizeRange;
     private String gender;
     private int bundleSize;
+    @Lob
     private List<BufferedImage> images = new ArrayList<>();
+    private boolean Trend ;
+
+    private LocalDateTime definedDate;
 
     // Constructors, Getters, and Setters
 
+    @PrePersist
+    protected void onCreate() {
+        this.definedDate = LocalDateTime.now();
+    }
+
     public Product() {}
 
-    public Product(String article, String brand, String colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images) {
+    public Product(String article, String brand, List<String> colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images, boolean Trend) {
         this.article = article;
         this.brand = brand;
         this.colour = colour;
@@ -40,6 +52,15 @@ public class Product {
         this.gender = gender;
         this.bundleSize = bundleSize;
         this.images = images;
+        this.Trend = Trend;
+    }
+
+    public boolean isTrend() {
+        return Trend;
+    }
+
+    public void setTrend(boolean trend) {
+        Trend = trend;
     }
 
     public String getArticle() {
@@ -58,11 +79,11 @@ public class Product {
         this.brand = brand;
     }
 
-    public String getColour() {
+    public List<String> getColour() {
         return colour;
     }
 
-    public void setColour(String colour) {
+    public void setColour(List<String> colour) {
         this.colour = colour;
     }
 
