@@ -70,4 +70,9 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam String category) {
         return   new ResponseEntity<>(productServicePublic.getProductsByCategory(category), HttpStatus.OK);
     }
+
+    @GetMapping("/products/by-gender")
+    public ResponseEntity<List<Product>> getProductsBGender(@RequestParam String gender) {
+        return   new ResponseEntity<>(productServicePublic.getProductsByGender(gender), HttpStatus.OK);
+    }
 }
