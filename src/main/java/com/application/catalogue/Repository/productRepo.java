@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ProductRepo extends JpaRepository<Product, String> {
 
-    List<Product> findByTrendTrue();
+    //List<Product> findByTrendTrue();
 
-    List<Product> findByRegisteredDateAfter(LocalDateTime date);
+    List<Product> findByDefinedDateAfter(LocalDateTime date);
 
 
     List<Product> findByCategory(String category);
