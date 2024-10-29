@@ -4,6 +4,9 @@ import com.application.catalogue.Product.Product;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public interface ProductServicePublic {
     List<Product> getAllProducts();
     void createProduct(Product product);
@@ -12,7 +15,7 @@ public interface ProductServicePublic {
 
     Product updateProduct(Product product, String Article);
 
-    List<Product> getTrends();
+    // List<Product> getTrends();
 
     public List<Product> getProductsRegisteredWithin7Days();
 

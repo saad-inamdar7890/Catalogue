@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 public class ProductController {
+
     @Autowired
     private ProductServicePublic productServicePublic;
 
@@ -21,7 +22,8 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProduct()
     {
         return  new ResponseEntity<>(productServicePublic.getAllProducts() , HttpStatus.OK);
-    }
+    } 
+
 
 
 
@@ -56,9 +58,8 @@ public class ProductController {
     @PutMapping("/api/public/products/{Article}")
     public ResponseEntity<String> updateProduct(@RequestBody Product product , @PathVariable String Article) {
         try {
-            Product savedCategory = productServicePublic.updateProduct(product, Article);
-            return new ResponseEntity<>("Updated Category wit Id : " + Article, HttpStatus.OK);
-
+            productServicePublic.updateProduct(product, Article); // Removed unused variable
+            return new ResponseEntity<>("Updated Category with Id : " + Article, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatusCode());
         }
@@ -66,12 +67,12 @@ public class ProductController {
 
 
 
-    @GetMapping("/products/by-category")
+    @GetMapping("/api/public/products/by-category")
     public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam String category) {
         return   new ResponseEntity<>(productServicePublic.getProductsByCategory(category), HttpStatus.OK);
     }
 
-    @GetMapping("/products/by-gender")
+    @GetMapping("/api/public/products/by-gender")
     public ResponseEntity<List<Product>> getProductsBGender(@RequestParam String gender) {
         return   new ResponseEntity<>(productServicePublic.getProductsByGender(gender), HttpStatus.OK);
     }

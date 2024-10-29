@@ -7,31 +7,36 @@ import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.awt.image.BufferedImage;
+import jakarta.persistence.ElementCollection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.Column;
 
 
 @Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Product {
 
     @Id
     private String article;
     private String brand;
+    @ElementCollection
     private List<String> colour;
     private float rate;
+    @ElementCollection
     private List<String> sizeRange;
     private String gender;
     private int bundleSize;
+    @ElementCollection
     @Lob
-    private List<BufferedImage> images = new ArrayList<>();
+    private List<byte[]> images = new ArrayList<>();
+    @Column(name = "trend")
     private boolean Trend ;
 
+    @Column(name = "defined_date")
     private LocalDateTime definedDate;
 
     private String category;
@@ -43,9 +48,7 @@ public class Product {
         this.definedDate = LocalDateTime.now();
     }
 
-    public Product() {}
-
-    public Product(String article, String category, String brand, List<String> colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<BufferedImage> images, boolean Trend) {
+    public Product(String article, String category, String brand, List<String> colour, float rate, List<String> sizeRange, String gender, int bundleSize, List<byte[]> images, boolean Trend) {
         this.article = article;
         this.brand = brand;
         this.colour = colour;
@@ -138,19 +141,19 @@ public class Product {
         this.bundleSize = bundleSize;
     }
 
-    public List<BufferedImage> getImages() {
+    public List<byte[]> getImages() {
         return images;
     }
 
-    public void setImages(List<BufferedImage> images) {
+    public void setImages(List<byte[]> images) {
         this.images = images;
     }
 
-    public void addImage(BufferedImage image) {
+    public void addImage(byte[] image) {
         this.images.add(image);
     }
 
-    public void removeImage(BufferedImage image) {
+    public void removeImage(byte[] image) {
         this.images.remove(image);
     }
 }
