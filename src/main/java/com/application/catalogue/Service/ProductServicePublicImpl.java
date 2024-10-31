@@ -65,4 +65,12 @@ public class ProductServicePublicImpl implements ProductServicePublic{
     public List<Product> getProductsByGender(String gender) {
         return productRepo.findByGender(gender);
     }
+
+    @Override
+    public Product findByArticle(String article) {
+        return productRepo.findByArticle(article);
+    }
+
+
+
 }

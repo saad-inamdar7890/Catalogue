@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 
-
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     @Autowired
@@ -22,8 +23,7 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProduct()
     {
         return  new ResponseEntity<>(productServicePublic.getAllProducts() , HttpStatus.OK);
-    } 
-
+    }
 
 
 
@@ -76,4 +76,35 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsBGender(@RequestParam String gender) {
         return   new ResponseEntity<>(productServicePublic.getProductsByGender(gender), HttpStatus.OK);
     }
+
+
+
+//    @GetMapping("/product/{article}/image")
+//    public ResponseEntity<InputStreamResource> getProductImage(@PathVariable String article) {
+//        Product product = productServicePublic.findByArticle(article);
+//        if (product == null || product.getImages() == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        // Retrieve the image bytes using the OID
+//        byte[] imageBytes = getImageFromDatabase(product.getImages()); // Implement this method
+//        if (imageBytes == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        ByteArrayInputStream imageStream = new ByteArrayInputStream(imageBytes);
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.IMAGE_JPEG) // Adjust based on image type
+//                .body(new InputStreamResource(imageStream));
+//    }
+
+//    // Implement a method to retrieve the image bytes using OID
+//    private byte[] getImageFromDatabase(Long oid) {
+//        // Logic to retrieve the image bytes from the database using the OID
+//        return new byte[0]; // Replace with actual byte array
+//    }
+
+
+
+
 }

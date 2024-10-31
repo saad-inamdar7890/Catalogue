@@ -17,4 +17,8 @@ public interface ProductRepo extends JpaRepository<Product, String> {
 
 
     List<Product> findByGender(String gender);
+
+    Product findByArticle(String article);
+
+
 }
