@@ -77,6 +77,11 @@ public class ProductController {
         return   new ResponseEntity<>(productServicePublic.getProductsByGender(gender), HttpStatus.OK);
     }
 
+    @GetMapping("/api/public/products/by-gender-and-category")
+    public ResponseEntity<List<Product>> getProductsBGenderAndCategory(@RequestParam String gender, @RequestParam String category) {
+        return new ResponseEntity<>(productServicePublic.getProductsByGenderAndCategory(gender, category), HttpStatus.OK);
+    }
+
 
 
 //    @GetMapping("/product/{article}/image")
