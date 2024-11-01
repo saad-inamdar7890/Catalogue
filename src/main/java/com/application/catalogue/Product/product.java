@@ -20,19 +20,16 @@ public class Product {
     private String article;
     private String brand;
 
-    @ElementCollection
-    @Column(name = "colour")
-    private List<String> colour = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Color> colours = new ArrayList<>();
 
     private float rate;
 
-    @ElementCollection
     @Column(name = "size_range")
     private List<String> sizeRange = new ArrayList<>();
 
     private String gender;
     private int bundleSize;
-
 
     @Column(name = "trend")
     private boolean trend;
@@ -46,6 +43,4 @@ public class Product {
     protected void onCreate() {
         this.definedDate = LocalDateTime.now();
     }
-
-
 }
