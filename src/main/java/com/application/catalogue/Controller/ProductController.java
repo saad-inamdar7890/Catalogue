@@ -1,13 +1,19 @@
 package com.application.catalogue.Controller;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Service.ProductServicePublic;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 @RestController
@@ -29,10 +35,23 @@ public class ProductController {
 
 
     @PostMapping("/api/public/product")
-    public ResponseEntity<String> createProducts(@RequestBody Product product)
-    {
+    public ResponseEntity<String> createProducts(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) throws JsonProcessingException {
+        Product product = new Product();
+        product.setArticle(productParams.get("article"));
+        product.setBrand(productParams.get("brand"));
+       // product.setColour(new ObjectMapper().readValue(productParams.get("colour"), List.class)); // Convert JSON string to List
+        product.setRate((float) Double.parseDouble(productParams.get("rate")));
+        product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), List.class)); // Convert JSON string to List
+        product.setGender(productParams.get("gender"));
+        product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+        product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+        product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
+        product.setCategory(productParams.get("category"));
+        
+        // Handle image saving logic here if needed
+
         productServicePublic.createProduct(product);
-        return  new ResponseEntity<>("Product added successfully" , HttpStatus.OK);
+        return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
     }
 
 
@@ -81,34 +100,6 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsBGenderAndCategory(@RequestParam String gender, @RequestParam String category) {
         return new ResponseEntity<>(productServicePublic.getProductsByGenderAndCategory(gender, category), HttpStatus.OK);
     }
-
-
-
-//    @GetMapping("/product/{article}/image")
-//    public ResponseEntity<InputStreamResource> getProductImage(@PathVariable String article) {
-//        Product product = productServicePublic.findByArticle(article);
-//        if (product == null || product.getImages() == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        // Retrieve the image bytes using the OID
-//        byte[] imageBytes = getImageFromDatabase(product.getImages()); // Implement this method
-//        if (imageBytes == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        ByteArrayInputStream imageStream = new ByteArrayInputStream(imageBytes);
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.IMAGE_JPEG) // Adjust based on image type
-//                .body(new InputStreamResource(imageStream));
-//    }
-
-//    // Implement a method to retrieve the image bytes using OID
-//    private byte[] getImageFromDatabase(Long oid) {
-//        // Logic to retrieve the image bytes from the database using the OID
-//        return new byte[0]; // Replace with actual byte array
-//    }
-
 
 
 
