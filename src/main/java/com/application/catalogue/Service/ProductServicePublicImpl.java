@@ -76,5 +76,10 @@ public class ProductServicePublicImpl implements ProductServicePublic{
         return productRepo.findByGenderAndCategory(gender.toLowerCase(), category.toLowerCase());
     }
 
+    @Override
+    public List<Product> searchProducts(String brand, String article) {
+        return productRepo.findByBrandContainingIgnoreCaseOrArticleContainingIgnoreCase(brand, article);
+    }
 
 }
+ 

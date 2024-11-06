@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
 
 
 @RestController
@@ -99,6 +99,18 @@ public class ProductController {
     @GetMapping("/api/public/products/by-gender-and-category")
     public ResponseEntity<List<Product>> getProductsBGenderAndCategory(@RequestParam String gender, @RequestParam String category) {
         return new ResponseEntity<>(productServicePublic.getProductsByGenderAndCategory(gender, category), HttpStatus.OK);
+    }
+
+    @GetMapping("/api/public/product/{article}")
+    public ResponseEntity<Product> getProductByArticle(@PathVariable String article) {
+        Product product = productServicePublic.findByArticle(article);
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/public/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam(required = false) String brand, @RequestParam(required = false) String article) {
+        List<Product> products = productServicePublic.searchProducts(brand, article);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
 

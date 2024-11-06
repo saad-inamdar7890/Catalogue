@@ -27,4 +27,6 @@ public interface ProductServicePublic {
     Product findByArticle(String article);
 
     List<Product> getProductsByGenderAndCategory(String gender, String category);
+
+    List<Product> searchProducts(String brand, String article);
 }
