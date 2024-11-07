@@ -116,6 +116,9 @@ public class ProductController {
     
   @GetMapping("/api/public/search/articles")
     public ResponseEntity<List<String>> searchArticles(@RequestParam(required = false) String article) {
+        if (article == null || article.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         List<String> articles = productServicePublic.searchArticles(article);
         return new ResponseEntity<>(articles, HttpStatus.OK);
     }
