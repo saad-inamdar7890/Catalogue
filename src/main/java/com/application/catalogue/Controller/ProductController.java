@@ -107,12 +107,26 @@ public class ProductController {
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
-    @GetMapping("/api/public/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam(required = false) String brand, @RequestParam(required = false) String article) {
-        List<Product> products = productServicePublic.searchProducts(brand, article);
+    @GetMapping("/api/public/search/brands")
+    public ResponseEntity<List<String>> searchProducts(@RequestParam(required = false) String brand) {
+        List<String> brands = productServicePublic.searchBrands(brand);
+        return new ResponseEntity<>(brands, HttpStatus.OK);
+    }
+
+    
+  @GetMapping("/api/public/search/articles")
+    public ResponseEntity<List<String>> searchArticles(@RequestParam(required = false) String article) {
+        List<String> articles = productServicePublic.searchArticles(article);
+        return new ResponseEntity<>(articles, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/public/products/by-brand")
+    public ResponseEntity<List<Product>> getProductsByBrand(@RequestParam String brand) {
+        List<Product> products = productServicePublic.getProductsByBrand(brand);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
+  
 
 
 }

@@ -81,5 +81,20 @@ public class ProductServicePublicImpl implements ProductServicePublic{
         return productRepo.findByBrandContainingIgnoreCaseOrArticleContainingIgnoreCase(brand, article);
     }
 
+    @Override
+    public List<Product> getProductsByBrand(String brand) {
+        return productRepo.findByBrand(brand);
+    }
+
+    @Override
+    public List<String> searchBrands(String brand) {
+        return productRepo.findDistinctBrandByBrandContainingIgnoreCase(brand);
+    }
+
+    @Override
+    public List<String> searchArticles(String article) {
+        return productRepo.findDistinctArticleByArticleContainingIgnoreCase(article);
+    }
+
 }
  

@@ -29,4 +29,10 @@ public interface ProductServicePublic {
     List<Product> getProductsByGenderAndCategory(String gender, String category);
 
     List<Product> searchProducts(String brand, String article);
+
+    List<Product> getProductsByBrand(String brand);
+
+    List<String> searchBrands(String brand);
+
+    List<String> searchArticles(String article);
 }
