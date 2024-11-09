@@ -129,6 +129,21 @@ public class ProductController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
+
+    @PostMapping("/api/admin/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("password");
+
+        if ("admin".equals(username) && "jas123".equals(password)) {
+            // Simulate token generation
+            Map<String, String> response = Map.of("token", "dummy-token");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
   
 
 
