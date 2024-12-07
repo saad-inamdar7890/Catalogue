@@ -39,6 +39,9 @@ public class Product {
 
     private String category;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
     @PrePersist
     protected void onCreate() {
         this.definedDate = LocalDateTime.now();

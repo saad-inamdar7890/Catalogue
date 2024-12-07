@@ -2,6 +2,7 @@ package com.application.catalogue.Controller;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Service.ProductServicePublic;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -34,28 +37,47 @@ public class ProductController {
 
 
 
-    @PostMapping("/api/public/product")
-    public ResponseEntity<String> createProducts(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) throws JsonProcessingException {
+  @PostMapping("/api/public/product")
+public ResponseEntity<String> createProducts(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) {
+    try {
+        // Define the directory and create it if it doesn't exist
+        String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        // Save the image to the directory
+        String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+        File imageFile = new File(imagePath);
+        image.transferTo(imageFile);
+
+        // Create and save the product
         Product product = new Product();
         product.setArticle(productParams.get("article"));
         product.setBrand(productParams.get("brand"));
-       // product.setColour(new ObjectMapper().readValue(productParams.get("colour"), List.class)); // Convert JSON string to List
-        product.setRate((float) Double.parseDouble(productParams.get("rate")));
-        product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), List.class)); // Convert JSON string to List
+        product.setRate(Float.parseFloat(productParams.get("rate")));
+        product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {}));
         product.setGender(productParams.get("gender"));
         product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
         product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
         product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
         product.setCategory(productParams.get("category"));
-        
-        // Handle image saving logic here if needed
+        product.setImagePath(imagePath);
 
         productServicePublic.createProduct(product);
         return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+        e.printStackTrace();
+        return new ResponseEntity<>("Error parsing JSON", HttpStatus.BAD_REQUEST);
+    } catch (IOException e) {
+        e.printStackTrace();
+        return new ResponseEntity<>("Error saving image", HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return new ResponseEntity<>("Error creating product", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
-
+}
 
     @DeleteMapping("/api/admin/product/{Article}")
     public ResponseEntity<String> deleteCategory(@PathVariable String Article)
@@ -112,6 +134,20 @@ public class ProductController {
         List<String> brands = productServicePublic.searchBrands(brand);
         return new ResponseEntity<>(brands, HttpStatus.OK);
     }
+
+    @GetMapping("/api/public/products/registered/within-7-days")
+    public ResponseEntity<List<Product>> getProductsRegisteredWithin7Days() {
+        List<Product> products = productServicePublic.getProductsRegisteredWithin7Days();
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/public/products/trends")
+    public ResponseEntity<List<Product>> getTrends() {
+        List<Product> products = productServicePublic.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+
 
     
   @GetMapping("/api/public/search/articles")
