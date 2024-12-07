@@ -2,9 +2,11 @@ package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Product;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface ProductServicePublic {
@@ -35,4 +37,9 @@ public interface ProductServicePublic {
     List<String> searchBrands(String brand);
 
     List<String> searchArticles(String article);
+
+    void deleteProductWithImage(String article);
+
+    void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException;
+
 }

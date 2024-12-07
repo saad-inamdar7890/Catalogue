@@ -79,18 +79,18 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
     }
 }
 
-    @DeleteMapping("/api/admin/product/{Article}")
-    public ResponseEntity<String> deleteCategory(@PathVariable String Article)
-    {
-        try
-        {
-            String status = productServicePublic.deleteProduct(Article);
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        } catch (ResponseStatusException e)
-        {
-            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
-        }
-    }
+//    @DeleteMapping("/api/admin/product/{Article}")
+//    public ResponseEntity<String> deleteCategory(@PathVariable String Article)
+//    {
+//        try
+//        {
+//            String status = productServicePublic.deleteProduct(Article);
+//            return new ResponseEntity<>(status, HttpStatus.OK);
+//        } catch (ResponseStatusException e)
+//        {
+//            return new ResponseEntity<>(e.getReason(), e.getStatusCode());
+//        }
+//    }
 
 
 
@@ -147,7 +147,40 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
+    @DeleteMapping("/api/admin/product/{article}")
+    public ResponseEntity<String> deleteProduct(@PathVariable String article) {
+        try {
+            productServicePublic.deleteProductWithImage(article);
+            return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error deleting product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    @PutMapping("/api/public/products/{article}")
+    public ResponseEntity<String> updateProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image, @PathVariable String article) {
+        try {
+            Product product = new Product();
+            product.setArticle(productParams.get("article"));
+            product.setBrand(productParams.get("brand"));
+            product.setRate(Float.parseFloat(productParams.get("rate")));
+            product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {}));
+            product.setGender(productParams.get("gender"));
+            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+            product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
+            product.setCategory(productParams.get("category"));
+
+            productServicePublic.updateProductWithImage(product, article, image);
+            return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            return new ResponseEntity<>("Error parsing JSON", HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error saving image", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     
   @GetMapping("/api/public/search/articles")
@@ -178,7 +211,11 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+
     }
+
+
+
 
   
 

@@ -4,8 +4,12 @@ import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +98,46 @@ public class ProductServicePublicImpl implements ProductServicePublic{
     @Override
     public List<String> searchArticles(String article) {
         return productRepo.findDistinctArticleByArticleContainingIgnoreCase(article);
+    }
+
+    @Override
+    public void deleteProductWithImage(String article) {
+        Product product = findByArticle(article);
+        if (product != null) {
+            // Delete the image file
+            File imageFile = new File(product.getImagePath());
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+            // Delete the product
+            deleteProduct(article);
+        }
+    }
+
+
+    public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {
+        Product existingProduct = findByArticle(article);
+        if (existingProduct != null) {
+            // Delete the old image file if a new image is provided
+            if (image != null && !image.isEmpty()) {
+                File oldImageFile = new File(existingProduct.getImagePath());
+                if (oldImageFile.exists()) {
+                    oldImageFile.delete();
+                }
+                // Save the new image
+                String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+                File directory = new File(directoryPath);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+                File imageFile = new File(imagePath);
+                image.transferTo(imageFile);
+                product.setImagePath(imagePath);
+            }
+            // Update the product
+            updateProduct(product, article);
+        }
     }
 
 }
