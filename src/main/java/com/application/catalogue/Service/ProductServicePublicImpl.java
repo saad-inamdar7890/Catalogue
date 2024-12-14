@@ -1,12 +1,14 @@
+// src/main/java/com/application/catalogue/Service/ProductServicePublicImpl.java
 package com.application.catalogue.Service;
 
+import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductServicePublicImpl implements ProductServicePublic{
+public class ProductServicePublicImpl implements ProductServicePublic {
 
     @Autowired
     private ProductRepo productRepo;
@@ -31,36 +33,28 @@ public class ProductServicePublicImpl implements ProductServicePublic{
     }
 
     @Override
-    public String deleteProduct(String Article) {
-
-        Product removeProduct = productRepo.findById(Article).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
-
+    public String deleteProduct(String article) {
+        Product removeProduct = productRepo.findById(article).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
         productRepo.delete(removeProduct);
-        return "Product with Article : "+Article+" is deleted successfully !!";
+        return "Product with Article: " + article + " is deleted successfully!";
     }
 
     @Override
-    public Product updateProduct(Product product,  String Article) {
-
-        Optional<Product> savedProductOptional = productRepo.findById(Article);
-        Product savedcategory = savedProductOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
-        product.setArticle(Article);
-        savedcategory = productRepo.save(product);
-        return savedcategory;
-
+    public Product updateProduct(Product product, String article) {
+        Optional<Product> savedProductOptional = productRepo.findById(article);
+        Product savedProduct = savedProductOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+        product.setArticle(article);
+        savedProduct = productRepo.save(product);
+        return savedProduct;
     }
 
-    // @Override
-    // public List<Product> getTrends() {
-    //     return productRepo.findByTrendTrue();
-    // }
-
+    @Override
     public List<Product> getProductsRegisteredWithin7Days() {
-        LocalDateTime DaysAgo = LocalDateTime.now().minusDays(7);
-        return productRepo.findByDefinedDateAfter(DaysAgo);
+        LocalDateTime daysAgo = LocalDateTime.now().minusDays(7);
+        return productRepo.findByDefinedDateAfter(daysAgo);
     }
 
-
+    @Override
     public List<Product> getProductsByCategory(String category) {
         return productRepo.findByCategory(category);
     }
@@ -104,17 +98,19 @@ public class ProductServicePublicImpl implements ProductServicePublic{
     public void deleteProductWithImage(String article) {
         Product product = findByArticle(article);
         if (product != null) {
-            // Delete the image file
-            File imageFile = new File(product.getImagePath());
-            if (imageFile.exists()) {
-                imageFile.delete();
+            // Delete the image files
+            for (Image image : product.getImages()) {
+                File imageFile = new File(image.getImagePath());
+                if (imageFile.exists()) {
+                    imageFile.delete();
+                }
             }
             // Delete the product
             deleteProduct(article);
         }
     }
 
-
+    @Override
     public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {
         Product existingProduct = findByArticle(article);
         if (existingProduct != null) {
@@ -139,6 +135,4 @@ public class ProductServicePublicImpl implements ProductServicePublic{
             updateProduct(product, article);
         }
     }
-
 }
- 

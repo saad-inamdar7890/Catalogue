@@ -1,4 +1,5 @@
 package com.application.catalogue.Controller;
+import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Service.ProductServicePublic;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +59,7 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
         product.setArticle(productParams.get("article"));
         product.setBrand(productParams.get("brand"));
         product.setRate(Float.parseFloat(productParams.get("rate")));
-        product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {}));
+        product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
         product.setGender(productParams.get("gender"));
         product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
         product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
@@ -164,7 +166,7 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
             product.setArticle(productParams.get("article"));
             product.setBrand(productParams.get("brand"));
             product.setRate(Float.parseFloat(productParams.get("rate")));
-            product.setSizeRange(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {}));
+            product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
             product.setGender(productParams.get("gender"));
             product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
             product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
@@ -215,9 +217,68 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
     }
 
 
+    @PostMapping("/api/public/productWithImages")
+    public ResponseEntity<String> createProducts(@RequestParam Map<String, String> productParams, @RequestParam("images") MultipartFile[] images) {
+        try {
+            // Define the directory and create it if it doesn't exist
+            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+            File directory = new File(directoryPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Create and save the product
+            Product product = new Product();
+            product.setArticle(productParams.get("article"));
+            product.setBrand(productParams.get("brand"));
+            product.setRate(Float.parseFloat(productParams.get("rate")));
+            product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), (TypeReference<List<String>>) new TypeReference<List<String>>() {})));
+            product.setGender(productParams.get("gender"));
+            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+            product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
+            product.setCategory(productParams.get("category"));
+
+            // Save the images and associate them with the product
+            ArrayList<Image> imageList = new ArrayList<>();
+            for (MultipartFile image : images) {
+                String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+                File imageFile = new File(imagePath);
+                image.transferTo(imageFile);
+
+                Image img = new Image();
+                img.setImagePath(imagePath);
+                img.setProduct(product);
+                imageList.add(img);
+            }
+            product.setImages(imageList);
 
 
-  
+            productServicePublic.createProduct(product);
+            return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error parsing JSON", HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error saving image", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Error creating product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/api/public/product/{article}/images")
+    public ResponseEntity<List<Image>> getProductImagesByArticle(@PathVariable String article) {
+        Product product = productServicePublic.findByArticle(article);
+        if (product != null) {
+            return new ResponseEntity<>(product.getImages(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 }

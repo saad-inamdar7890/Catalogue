@@ -1,5 +1,7 @@
+// src/main/java/com/application/catalogue/Image/Image.java
 package com.application.catalogue.Product;
-
+import com.application.catalogue.Product.Color;
+import com.application.catalogue.Product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +20,10 @@ public class Image {
 
     @Column(name = "image_path")
     private String imagePath;
+
+    @ManyToOne
+    @JoinColumn(name = "color_id")
+    private Color color;
 
     @ManyToOne
     @JoinColumn(name = "product_article")

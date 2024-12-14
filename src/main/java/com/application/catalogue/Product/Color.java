@@ -1,12 +1,18 @@
+// src/main/java/com/application/catalogue/Product/Color.java
 package com.application.catalogue.Product;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
-@Table(name = "colors")
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "Color")
 public class Color {
 
     @Id
@@ -16,7 +22,9 @@ public class Color {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "product_article") // Foreign key to Product
-    @JsonIgnore
-    private Product product; // Reference to the Product
+    @JoinColumn(name = "product_article")
+    private Product product;
+
+    @OneToMany(mappedBy = "color", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Image> images;
 }
