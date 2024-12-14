@@ -1,4 +1,5 @@
 package com.application.catalogue.Controller;
+import com.application.catalogue.DTO.ImageWithColorDTO;
 import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Service.ProductServicePublic;
@@ -269,15 +270,21 @@ public ResponseEntity<String> createProducts(@RequestParam Map<String, String> p
     }
 
 
-    @GetMapping("/api/public/product/{article}/images")
-    public ResponseEntity<List<Image>> getProductImagesByArticle(@PathVariable String article) {
-        Product product = productServicePublic.findByArticle(article);
-        if (product != null) {
-            return new ResponseEntity<>(product.getImages(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+   @GetMapping("/api/public/product/{article}/images")
+public ResponseEntity<List<ImageWithColorDTO>> getProductImagesByArticle(@PathVariable String article) {
+    Product product = productServicePublic.findByArticle(article);
+    if (product != null) {
+        List<ImageWithColorDTO> imageWithColorDTOs = new ArrayList<>();
+        for (Image image : product.getImages()) {
+            String colorName = image.getColor() != null ? image.getColor().getName() : null;
+            imageWithColorDTOs.add(new ImageWithColorDTO(image.getImagePath(), colorName));
         }
+        return new ResponseEntity<>(imageWithColorDTOs, HttpStatus.OK);
+    } else {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+}
+
 
 
 
