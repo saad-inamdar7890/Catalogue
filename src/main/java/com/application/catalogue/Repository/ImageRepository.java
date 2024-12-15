@@ -1,0 +1,10 @@
+// src/main/java/com/application/catalogue/Repository/ImageRepository.java
+package com.application.catalogue.Repository;
+
+import com.application.catalogue.Image.Image;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ImageRepository extends JpaRepository<Image, Long> {
+}
