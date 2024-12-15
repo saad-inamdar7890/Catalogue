@@ -1,7 +1,7 @@
 // src/main/java/com/application/catalogue/Repository/ImageRepository.java
 package com.application.catalogue.Repository;
 
-import com.application.catalogue.Image.Image;
+import com.application.catalogue.Product.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

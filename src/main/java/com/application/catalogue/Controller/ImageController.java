@@ -1,7 +1,7 @@
 // src/main/java/com/application/catalogue/Controller/ImageController.java
 package com.application.catalogue.Controller;
 
-import com.application.catalogue.Image.Image;
+import com.application.catalogue.Product.Image;
 import com.application.catalogue.Service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 // src/main/java/com/application/catalogue/Service/ImageService.java
 package com.application.catalogue.Service;
 
-import com.application.catalogue.Image.Image;
+import com.application.catalogue.Product.Image;
 import com.application.catalogue.Repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
