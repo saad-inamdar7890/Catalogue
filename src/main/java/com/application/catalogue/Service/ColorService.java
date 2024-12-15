@@ -51,4 +51,33 @@ public class ColorService {
             return false;
         }
     }
+
+    @Override
+    public List<Color> getColorsByProductArticle(String article) {
+        return colorRepository.findByProductArticle(article);
+    }
+
+    @Override
+    public Color createColorByProductArticle(String article, Color color) {
+        Product product = productRepository.findByArticle(article);
+        color.setProduct(product);
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public Color updateColorByProductArticle(String article, Long colorId, Color color) {
+        Product product = productRepository.findByArticle(article);
+        color.setId(colorId);
+        color.setProduct(product);
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public boolean deleteColorByProductArticle(String article, Long colorId) {
+        if (colorRepository.existsById(colorId)) {
+            colorRepository.deleteById(colorId);
+            return true;
+        }
+        return false;
+    }
 }

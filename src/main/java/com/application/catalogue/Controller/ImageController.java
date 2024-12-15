@@ -20,18 +20,13 @@ public class ImageController {
 
     @GetMapping
     public ResponseEntity<List<Image>> getAllImages() {
-        List<Image> images = imageService.getAllImages();
-        return new ResponseEntity<>(images, HttpStatus.OK);
+        return new ResponseEntity<>(imageService.getAllImages(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Image> getImageById(@PathVariable Long id) {
         Image image = imageService.getImageById(id);
-        if (image != null) {
-            return new ResponseEntity<>(image, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(image, HttpStatus.OK);
     }
 
     @PostMapping
@@ -43,20 +38,36 @@ public class ImageController {
     @PutMapping("/{id}")
     public ResponseEntity<Image> updateImage(@PathVariable Long id, @RequestBody Image image) {
         Image updatedImage = imageService.updateImage(id, image);
-        if (updatedImage != null) {
-            return new ResponseEntity<>(updatedImage, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(updatedImage, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
         boolean isDeleted = imageService.deleteImage(id);
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/by-product/{article}")
+    public ResponseEntity<List<Image>> getImagesByProductArticle(@PathVariable String article) {
+        List<Image> images = imageService.getImagesByProductArticle(article);
+        return new ResponseEntity<>(images, HttpStatus.OK);
+    }
+
+    @PostMapping("/by-product/{article}")
+    public ResponseEntity<Image> createImageByProductArticle(@PathVariable String article, @RequestBody Image image) {
+        Image createdImage = imageService.createImageByProductArticle(article, image);
+        return new ResponseEntity<>(createdImage, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/by-product/{article}/{imageId}")
+    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable Long imageId, @RequestBody Image image) {
+        Image updatedImage = imageService.updateImageByProductArticle(article, imageId, image);
+        return new ResponseEntity<>(updatedImage, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/by-product/{article}/{imageId}")
+    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable Long imageId) {
+        boolean isDeleted = imageService.deleteImageByProductArticle(article, imageId);
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

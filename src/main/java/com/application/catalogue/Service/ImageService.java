@@ -51,4 +51,36 @@ public class ImageService {
             return false;
         }
     }
+
+
+
+
+    @Override
+    public List<Image> getImagesByProductArticle(String article) {
+        return imageRepository.findByProductArticle(article);
+    }
+
+    @Override
+    public Image createImageByProductArticle(String article, Image image) {
+        Product product = productRepository.findByArticle(article);
+        image.setProduct(product);
+        return imageRepository.save(image);
+    }
+
+    @Override
+    public Image updateImageByProductArticle(String article, Long imageId, Image image) {
+        Product product = productRepository.findByArticle(article);
+        image.setId(imageId);
+        image.setProduct(product);
+        return imageRepository.save(image);
+    }
+
+    @Override
+    public boolean deleteImageByProductArticle(String article, Long imageId) {
+        if (imageRepository.existsById(imageId)) {
+            imageRepository.deleteById(imageId);
+            return true;
+        }
+        return false;
+    }
 }

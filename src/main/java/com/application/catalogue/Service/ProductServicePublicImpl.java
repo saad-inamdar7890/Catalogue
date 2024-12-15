@@ -96,19 +96,24 @@ public class ProductServicePublicImpl implements ProductServicePublic {
 
     @Override
     public void deleteProductWithImage(String article) {
-        Product product = findByArticle(article);
-        if (product != null) {
-            // Delete the image files
-            for (Image image : product.getImages()) {
-                File imageFile = new File(image.getImagePath());
-                if (imageFile.exists()) {
-                    imageFile.delete();
-                }
-            }
-            // Delete the product
-            deleteProduct(article);
-        }
+
     }
+
+//    @Override
+//    public void deleteProductWithImage(String article) {
+//        Product product = findByArticle(article);
+//        if (product != null) {
+//            // Delete the image files
+//            for (Image image : product.getImages()) {
+//                File imageFile = new File(image.getImagePath());
+//                if (imageFile.exists()) {
+//                    imageFile.delete();
+//                }
+//            }
+//            // Delete the product
+//            deleteProduct(article);
+//        }
+//    }
 
     @Override
     public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {
