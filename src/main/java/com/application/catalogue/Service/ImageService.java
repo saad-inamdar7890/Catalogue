@@ -3,8 +3,8 @@ package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Image;
 import com.application.catalogue.Repository.ImageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +12,11 @@ import java.util.Optional;
 @Service
 public class ImageService {
 
-    @Autowired
-    private ImageRepository imageRepository;
+    private final ImageRepository imageRepository;
+
+    public ImageService(ImageRepository imageRepository) {
+        this.imageRepository = imageRepository;
+    }
 
     public List<Image> getAllImages() {
         return imageRepository.findAll();
@@ -24,10 +27,12 @@ public class ImageService {
         return image.orElse(null);
     }
 
+    @Transactional
     public Image createImage(Image image) {
         return imageRepository.save(image);
     }
 
+    @Transactional
     public Image updateImage(Long id, Image image) {
         if (imageRepository.existsById(id)) {
             image.setId(id);
@@ -37,6 +42,7 @@ public class ImageService {
         }
     }
 
+    @Transactional
     public boolean deleteImage(Long id) {
         if (imageRepository.existsById(id)) {
             imageRepository.deleteById(id);

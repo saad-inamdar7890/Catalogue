@@ -3,8 +3,8 @@ package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Color;
 import com.application.catalogue.Repository.ColorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +12,11 @@ import java.util.Optional;
 @Service
 public class ColorService {
 
-    @Autowired
-    private ColorRepository colorRepository;
+    private final ColorRepository colorRepository;
+
+    public ColorService(ColorRepository colorRepository) {
+        this.colorRepository = colorRepository;
+    }
 
     public List<Color> getAllColors() {
         return colorRepository.findAll();
@@ -24,10 +27,12 @@ public class ColorService {
         return color.orElse(null);
     }
 
+    @Transactional
     public Color createColor(Color color) {
         return colorRepository.save(color);
     }
 
+    @Transactional
     public Color updateColor(Long id, Color color) {
         if (colorRepository.existsById(id)) {
             color.setId(id);
@@ -37,6 +42,7 @@ public class ColorService {
         }
     }
 
+    @Transactional
     public boolean deleteColor(Long id) {
         if (colorRepository.existsById(id)) {
             colorRepository.deleteById(id);

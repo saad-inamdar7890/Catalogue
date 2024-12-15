@@ -3,7 +3,6 @@ package com.application.catalogue.Controller;
 
 import com.application.catalogue.Product.Color;
 import com.application.catalogue.Service.ColorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,11 @@ import java.util.List;
 @RequestMapping("/api/public/colors")
 public class ColorController {
 
-    @Autowired
-    private ColorService colorService;
+    private final ColorService colorService;
+
+    public ColorController(ColorService colorService) {
+        this.colorService = colorService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Color>> getAllColors() {
@@ -27,11 +29,7 @@ public class ColorController {
     @GetMapping("/{id}")
     public ResponseEntity<Color> getColorById(@PathVariable Long id) {
         Color color = colorService.getColorById(id);
-        if (color != null) {
-            return new ResponseEntity<>(color, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return color != null ? new ResponseEntity<>(color, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping
@@ -43,20 +41,12 @@ public class ColorController {
     @PutMapping("/{id}")
     public ResponseEntity<Color> updateColor(@PathVariable Long id, @RequestBody Color color) {
         Color updatedColor = colorService.updateColor(id, color);
-        if (updatedColor != null) {
-            return new ResponseEntity<>(updatedColor, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return updatedColor != null ? new ResponseEntity<>(updatedColor, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteColor(@PathVariable Long id) {
         boolean isDeleted = colorService.deleteColor(id);
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
