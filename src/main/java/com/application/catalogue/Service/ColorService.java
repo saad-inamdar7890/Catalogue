@@ -2,9 +2,11 @@
 package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Color;
+import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ColorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.application.catalogue.Repository.ProductRepo;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +15,12 @@ import java.util.Optional;
 public class ColorService {
 
     private final ColorRepository colorRepository;
+    private final ProductRepo productRepo;
 
-    public ColorService(ColorRepository colorRepository) {
+
+    public ColorService(ColorRepository colorRepository, ProductRepo productRepo) {
         this.colorRepository = colorRepository;
+        this.productRepo = productRepo;
     }
 
     public List<Color> getAllColors() {
@@ -52,27 +57,27 @@ public class ColorService {
         }
     }
 
-    @Override
+
     public List<Color> getColorsByProductArticle(String article) {
         return colorRepository.findByProductArticle(article);
     }
 
-    @Override
+
     public Color createColorByProductArticle(String article, Color color) {
-        Product product = productRepository.findByArticle(article);
+        Product product = productRepo.findByArticle(article);
         color.setProduct(product);
         return colorRepository.save(color);
     }
 
-    @Override
+
     public Color updateColorByProductArticle(String article, Long colorId, Color color) {
-        Product product = productRepository.findByArticle(article);
+        Product product = productRepo.findByArticle(article);
         color.setId(colorId);
         color.setProduct(product);
         return colorRepository.save(color);
     }
 
-    @Override
+
     public boolean deleteColorByProductArticle(String article, Long colorId) {
         if (colorRepository.existsById(colorId)) {
             colorRepository.deleteById(colorId);

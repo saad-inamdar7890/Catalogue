@@ -48,9 +48,10 @@ public class ImageController {
     }
 
     @GetMapping("/by-product/{article}")
-    public ResponseEntity<List<Image>> getImagesByProductArticle(@PathVariable String article) {
+    public ResponseEntity<List<String>> getImagesByProductArticle(@PathVariable String article) {
         List<Image> images = imageService.getImagesByProductArticle(article);
-        return new ResponseEntity<>(images, HttpStatus.OK);
+        List<String> imagePaths = images.stream().map(Image::getImagePath).toList();
+        return new ResponseEntity<>(imagePaths, HttpStatus.OK);
     }
 
     @PostMapping("/by-product/{article}")

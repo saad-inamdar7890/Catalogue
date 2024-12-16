@@ -20,7 +20,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
 
     List<Product> findByGender(String gender);
 
-    Product findByArticle(String article);
+     Product findByArticle(String article) ;
 
 
     List<Product> findByGenderAndCategory(String gender, String category);

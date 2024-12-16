@@ -66,7 +66,7 @@ public class ProductServicePublicImpl implements ProductServicePublic {
 
     @Override
     public Product findByArticle(String article) {
-        return productRepo.findByArticle(article);
+        return productRepo .findByArticle(article);
     }
 
     @Override

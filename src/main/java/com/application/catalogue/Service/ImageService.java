@@ -2,10 +2,11 @@
 package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Image;
+import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ImageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.application.catalogue.Repository.ProductRepo;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +14,13 @@ import java.util.Optional;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+    private final ProductRepo productRepo;
 
-    public ImageService(ImageRepository imageRepository) {
+
+    public ImageService(ImageRepository imageRepository, ProductRepo productRepo) {
         this.imageRepository = imageRepository;
+        this.productRepo = productRepo;
+
     }
 
     public List<Image> getAllImages() {
@@ -55,27 +60,27 @@ public class ImageService {
 
 
 
-    @Override
+
     public List<Image> getImagesByProductArticle(String article) {
         return imageRepository.findByProductArticle(article);
     }
 
-    @Override
+
     public Image createImageByProductArticle(String article, Image image) {
-        Product product = productRepository.findByArticle(article);
+        Product product = productRepo.findByArticle(article);
         image.setProduct(product);
         return imageRepository.save(image);
     }
 
-    @Override
+
     public Image updateImageByProductArticle(String article, Long imageId, Image image) {
-        Product product = productRepository.findByArticle(article);
+        Product product = productRepo.findByArticle(article);
         image.setId(imageId);
         image.setProduct(product);
         return imageRepository.save(image);
     }
 
-    @Override
+
     public boolean deleteImageByProductArticle(String article, Long imageId) {
         if (imageRepository.existsById(imageId)) {
             imageRepository.deleteById(imageId);

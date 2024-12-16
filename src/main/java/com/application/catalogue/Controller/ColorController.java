@@ -48,9 +48,10 @@ public class ColorController {
     }
 
     @GetMapping("/by-product/{article}")
-    public ResponseEntity<List<Color>> getColorsByProductArticle(@PathVariable String article) {
+    public ResponseEntity<List<String>> getColorsByProductArticle(@PathVariable String article) {
         List<Color> colors = colorService.getColorsByProductArticle(article);
-        return new ResponseEntity<>(colors, HttpStatus.OK);
+        List<String> colorNames = colors.stream().map(Color::getName).toList();
+        return new ResponseEntity<>(colorNames, HttpStatus.OK);
     }
 
     @PostMapping("/by-product/{article}")
