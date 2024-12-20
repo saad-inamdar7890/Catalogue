@@ -116,4 +116,28 @@ public class ProductController {
         List<Product> products = productServicePublic.getProductsByBrand(brand);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
+
+
+    @GetMapping("/registered/within-7-days")
+    public ResponseEntity<List<Product>> getProductsRegisteredWithin7Days() {
+        List<Product> products = productServicePublic.getProductsRegisteredWithin7Days();
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/articles")
+    public ResponseEntity<List<String>> searchArticles(@RequestParam(required = false) String article) {
+        if (article == null || article.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<String> articles = productServicePublic.searchArticles(article);
+        return new ResponseEntity<>(articles, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/brands")
+    public ResponseEntity<List<String>> searchProducts(@RequestParam(required = false) String brand) {
+        List<String> brands = productServicePublic.searchBrands(brand);
+        return new ResponseEntity<>(brands, HttpStatus.OK);
+    }
+
+
 }
