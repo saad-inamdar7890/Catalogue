@@ -1,4 +1,3 @@
-// src/main/java/com/application/catalogue/Product/ProductId.java
 package com.application.catalogue.Product;
 
 import java.io.Serializable;
@@ -9,16 +8,13 @@ public class ProductId implements Serializable {
     private String article;
     private String colour;
 
-    // Default constructor
     public ProductId() {}
 
-    // Parameterized constructor
     public ProductId(String article, String colour) {
         this.article = article;
         this.colour = colour;
     }
 
-    // Getters and setters
     public String getArticle() {
         return article;
     }
@@ -35,7 +31,6 @@ public class ProductId implements Serializable {
         this.colour = colour;
     }
 
-    // Override equals and hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

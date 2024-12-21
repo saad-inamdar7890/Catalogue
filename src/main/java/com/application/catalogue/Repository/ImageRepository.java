@@ -1,4 +1,3 @@
-// src/main/java/com/application/catalogue/Repository/ImageRepository.java
 package com.application.catalogue.Repository;
 
 import com.application.catalogue.Product.Image;

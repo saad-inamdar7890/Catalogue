@@ -35,7 +35,6 @@ public class AdminController {
         String password = credentials.get("password");
 
         if ("admin".equals(username) && "jas123".equals(password)) {
-            // Simulate token generation
             Map<String, String> response = Map.of("token", "dummy-token");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
@@ -46,7 +45,6 @@ public class AdminController {
     @PostMapping("/products/save")
     public ResponseEntity<String> saveProduct(@RequestParam Map<String, String> productParams,
                                               @RequestParam("image") MultipartFile image) throws IOException {
-        // Save image
         String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
         File directory = new File(directoryPath);
         if (!directory.exists()) {
@@ -57,7 +55,6 @@ public class AdminController {
         File imageFile = new File(imagePath);
         image.transferTo(imageFile);
 
-        // Create product
         Product product = new Product();
         product.setArticle(productParams.get("article"));
         product.setColour(productParams.get("colour"));
@@ -71,9 +68,19 @@ public class AdminController {
         product.setCategory(productParams.get("category"));
         product.setImagePath(imagePath);
 
-        // Save product
         productServicePublic.createProduct(product);
 
         return new ResponseEntity<>("Product saved successfully", HttpStatus.OK);
+    }
+
+    @PutMapping("/products/{article}/{colour}/images/{imageId}")
+    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId, @RequestBody Image image) {
+        return new ResponseEntity<>(imageService.updateImageByProductArticle(article, colour, imageId, image), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/products/{article}/{colour}/images/{imageId}")
+    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) {
+        boolean isDeleted = imageService.deleteImageByProductArticle(article, colour, imageId);
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
