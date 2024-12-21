@@ -1,17 +1,20 @@
 package com.application.catalogue.Controller.admin;
 
-import com.application.catalogue.Product.Color;
 import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
-import com.application.catalogue.Service.ColorService;
 import com.application.catalogue.Service.ImageService;
 import com.application.catalogue.Service.ProductServicePublic;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +28,6 @@ public class AdminController {
 
     @Autowired
     private ImageService imageService;
-
-    @Autowired
-    private ColorService colorService;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
@@ -43,53 +43,37 @@ public class AdminController {
         }
     }
 
-    // Product endpoints
-//    @PostMapping("/products")
-//    public ResponseEntity<String> createProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) {
-//        return productServicePublic.createProduct(productParams, image);
-//    }
-//
-//    @PutMapping("/products/{article}")
-//    public ResponseEntity<String> updateProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image, @PathVariable String article) {
-//        return productServicePublic.updateProduct(productParams, image, article);
-//    }
-//
-//    @DeleteMapping("/products/{article}")
-//    public ResponseEntity<String> deleteProduct(@PathVariable String article) {
-//        return productServicePublic.deleteProduct(article);
-//    }
+    @PostMapping("/products/save")
+    public ResponseEntity<String> saveProduct(@RequestParam Map<String, String> productParams,
+                                              @RequestParam("image") MultipartFile image) throws IOException {
+        // Save image
+        String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
 
-//    // Image endpoints
-//    @PostMapping("/products/{article}/images")
-//    public ResponseEntity<Image> createImageByProductArticle(@PathVariable String article, @RequestBody Image image) {
-//        return new ResponseEntity<>(imageService.createImageByProductArticle(article, image), HttpStatus.CREATED);
-//    }
+        String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+        File imageFile = new File(imagePath);
+        image.transferTo(imageFile);
 
-    @PutMapping("/products/{article}/images/{imageId}")
-    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable Long imageId, @RequestBody Image image) {
-        return new ResponseEntity<>(imageService.updateImageByProductArticle(article, imageId, image), HttpStatus.OK);
+        // Create product
+        Product product = new Product();
+        product.setArticle(productParams.get("article"));
+        product.setColour(productParams.get("colour"));
+        product.setBrand(productParams.get("brand"));
+        product.setRate(Float.parseFloat(productParams.get("rate")));
+        product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
+        product.setGender(productParams.get("gender"));
+        product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+        product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+        product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
+        product.setCategory(productParams.get("category"));
+        product.setImagePath(imagePath);
+
+        // Save product
+        productServicePublic.createProduct(product);
+
+        return new ResponseEntity<>("Product saved successfully", HttpStatus.OK);
     }
-
-    @DeleteMapping("/products/{article}/images/{imageId}")
-    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable Long imageId) {
-        boolean isDeleted = imageService.deleteImageByProductArticle(article, imageId);
-        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    // Color endpoints
-    @PostMapping("/products/{article}/colors")
-    public ResponseEntity<Color> createColorByProductArticle(@PathVariable String article, @RequestBody Color color) {
-        return new ResponseEntity<>(colorService.createColorByProductArticle(article, color), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/products/{article}/colors/{colorId}")
-    public ResponseEntity<Color> updateColorByProductArticle(@PathVariable String article, @PathVariable Long colorId, @RequestBody Color color) {
-        return new ResponseEntity<>(colorService.updateColorByProductArticle(article, colorId, color), HttpStatus.OK);
-    }
-
-//    @DeleteMapping("/products/{article}/colors/{colorId}")
-//    public ResponseEntity<Void> deleteColorByProductArticle(@PathVariable String article, @PathVariable Long colorId) {
-//        boolean isDeleted = colorService.deleteColorByProductArticle(article, colorId);
-//        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
 }

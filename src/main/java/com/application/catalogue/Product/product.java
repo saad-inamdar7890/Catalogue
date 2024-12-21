@@ -1,24 +1,27 @@
 // src/main/java/com/application/catalogue/Product/Product.java
 package com.application.catalogue.Product;
 
-import com.application.catalogue.Product.Image;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table(name = "Product")
-public class Product {
+@IdClass(ProductId.class)
+public class Product implements Serializable {
 
     @Id
     private String article;
+
+    @Id
+    private String colour;
+
     private String brand;
     private float rate;
     private String sizeRange;
@@ -28,12 +31,6 @@ public class Product {
     private LocalDateTime definedDate;
     private String category;
     private String imagePath;
-
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Color> colours;
-//
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Image> images;
 
     @PrePersist
     protected void onCreate() {
