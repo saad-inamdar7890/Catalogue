@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServicePublicImpl implements ProductServicePublic {
@@ -91,15 +92,7 @@ public class ProductServicePublicImpl implements ProductServicePublic {
         return productRepository.findByBrand(brand);
     }
 
-    @Override
-    public List<String> searchBrands(String brand) {
-        return productRepository.findDistinctBrandByBrandContainingIgnoreCase(brand);
-    }
 
-    @Override
-    public List<String> searchArticles(String article) {
-        return productRepository.findDistinctArticleByArticleContainingIgnoreCase(article);
-    }
 
     @Override
     @Transactional
@@ -137,4 +130,23 @@ public class ProductServicePublicImpl implements ProductServicePublic {
             updateProduct(product, article);
         }
     }
+
+    @Override
+    public List<String> searchBrands(String brand) {
+        List<Product> products = productRepository.findByBrandContainingIgnoreCase(brand);
+        return products.stream()
+                .map(Product::getBrand)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> searchArticles(String article) {
+        List<Product> products = productRepository.findByArticleContainingIgnoreCase(article);
+        return products.stream()
+                .map(Product::getArticle)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
 }

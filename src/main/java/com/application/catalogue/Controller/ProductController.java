@@ -121,4 +121,22 @@ public class ProductController {
         Product product = productServicePublic.findByArticleAndColour(article, colour);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
+
+    @GetMapping("/search/articles")
+    public ResponseEntity<List<String>> searchArticles(@RequestParam String article) {
+        if (article == null || article.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<String> articles = productServicePublic.searchArticles(article);
+        return new ResponseEntity<>(articles, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/brands")
+    public ResponseEntity<List<String>> searchBrands(@RequestParam String brand) {
+        if (brand == null || brand.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<String> brands = productServicePublic.searchBrands(brand);
+        return new ResponseEntity<>(brands, HttpStatus.OK);
+    }
 }
