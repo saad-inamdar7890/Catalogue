@@ -1,12 +1,12 @@
-// src/main/java/com/application/catalogue/Service/ImageService.java
 package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ImageRepository;
+import com.application.catalogue.Repository.ProductRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.application.catalogue.Repository.ProductRepo;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +14,11 @@ import java.util.Optional;
 public class ImageService {
 
     private final ImageRepository imageRepository;
-    private final ProductRepo productRepo;
+    private final ProductRepo productRepository;
 
-
-    public ImageService(ImageRepository imageRepository, ProductRepo productRepo) {
+    public ImageService(ImageRepository imageRepository, ProductRepo productRepository) {
         this.imageRepository = imageRepository;
-        this.productRepo = productRepo;
-
+        this.productRepository = productRepository;
     }
 
     public List<Image> getAllImages() {
@@ -57,30 +55,26 @@ public class ImageService {
         }
     }
 
-
-
-
-
-    public List<Image> getImagesByProductArticle(String article) {
-        return imageRepository.findByProductArticle(article);
+    public List<Image> getImagesByProductArticle(String article, String colour) {
+        return imageRepository.findByProductArticleAndProductColour(article, colour);
     }
 
-
+    @Transactional
     public Image createImageByProductArticle(String article, Image image) {
-        Product product = productRepo.findByArticle(article);
+        Product product = productRepository.findByArticle(article);
         image.setProduct(product);
         return imageRepository.save(image);
     }
 
-
+    @Transactional
     public Image updateImageByProductArticle(String article, Long imageId, Image image) {
-        Product product = productRepo.findByArticle(article);
+        Product product = productRepository.findByArticle(article);
         image.setId(imageId);
         image.setProduct(product);
         return imageRepository.save(image);
     }
 
-
+    @Transactional
     public boolean deleteImageByProductArticle(String article, Long imageId) {
         if (imageRepository.existsById(imageId)) {
             imageRepository.deleteById(imageId);

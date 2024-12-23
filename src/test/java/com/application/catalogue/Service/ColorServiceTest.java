@@ -2,7 +2,6 @@
 package com.application.catalogue.Service;
 
 import com.application.catalogue.Product.Color;
-import com.application.catalogue.Repository.ColorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

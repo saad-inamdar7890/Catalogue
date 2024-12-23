@@ -1,4 +1,3 @@
-// src/main/java/com/application/catalogue/Controller/ProductController.java
 package com.application.catalogue.Controller;
 
 import com.application.catalogue.Product.Product;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +50,7 @@ public class ProductController {
 
             Product product = new Product();
             product.setArticle(productParams.get("article"));
+            product.setColour(productParams.get("colour"));
             product.setBrand(productParams.get("brand"));
             product.setRate(Float.parseFloat(productParams.get("rate")));
             product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
@@ -76,6 +75,7 @@ public class ProductController {
         try {
             Product product = new Product();
             product.setArticle(productParams.get("article"));
+            product.setColour(productParams.get("colour"));
             product.setBrand(productParams.get("brand"));
             product.setRate(Float.parseFloat(productParams.get("rate")));
             product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
@@ -104,7 +104,6 @@ public class ProductController {
         }
     }
 
-
     @GetMapping("/by-gender-and-category")
     public ResponseEntity<List<Product>> getProductsByGenderAndCategory(@RequestParam String gender, @RequestParam String category) {
         List<Product> products = productServicePublic.getProductsByGenderAndCategory(gender, category);
@@ -117,27 +116,9 @@ public class ProductController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-
-    @GetMapping("/registered/within-7-days")
-    public ResponseEntity<List<Product>> getProductsRegisteredWithin7Days() {
-        List<Product> products = productServicePublic.getProductsRegisteredWithin7Days();
-        return new ResponseEntity<>(products, HttpStatus.OK);
+    @GetMapping("/{article}/{colour}")
+    public ResponseEntity<Product> getProductByArticleAndColour(@PathVariable String article, @PathVariable String colour) {
+        Product product = productServicePublic.findByArticleAndColour(article, colour);
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
-
-    @GetMapping("/search/articles")
-    public ResponseEntity<List<String>> searchArticles(@RequestParam(required = false) String article) {
-        if (article == null || article.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        List<String> articles = productServicePublic.searchArticles(article);
-        return new ResponseEntity<>(articles, HttpStatus.OK);
-    }
-
-    @GetMapping("/search/brands")
-    public ResponseEntity<List<String>> searchProducts(@RequestParam(required = false) String brand) {
-        List<String> brands = productServicePublic.searchBrands(brand);
-        return new ResponseEntity<>(brands, HttpStatus.OK);
-    }
-
-
 }

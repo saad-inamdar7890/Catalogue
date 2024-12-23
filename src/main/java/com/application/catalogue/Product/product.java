@@ -1,4 +1,3 @@
-// src/main/java/com/application/catalogue/Product/Product.java
 package com.application.catalogue.Product;
 
 import jakarta.persistence.*;

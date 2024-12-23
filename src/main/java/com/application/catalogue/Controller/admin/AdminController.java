@@ -28,6 +28,9 @@ public class AdminController {
 
     @Autowired
     private ImageService imageService;
+    private String article;
+    private String colour;
+    private Long imageId;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
@@ -73,14 +76,14 @@ public class AdminController {
         return new ResponseEntity<>("Product saved successfully", HttpStatus.OK);
     }
 
-//    @PutMapping("/products/{article}/{colour}/images/{imageId}")
-//    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId, @RequestBody Image image) {
-//        return new ResponseEntity<>(imageService.updateImageByProductArticle(article, colour, imageId, image), HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("/products/{article}/{colour}/images/{imageId}")
-//    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) {
-//        boolean isDeleted = imageService.deleteImageByProductArticle(article, colour, imageId);
-//        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//    }
+    @PutMapping("/products/{article}/images/{imageId}")
+    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable Long imageId, @RequestBody Image image) {
+        return new ResponseEntity<>(imageService.updateImageByProductArticle(article, imageId, image), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/products/{article}/images/{imageId}")
+    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable Long imageId) {
+        boolean isDeleted = imageService.deleteImageByProductArticle(article, imageId);
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }
