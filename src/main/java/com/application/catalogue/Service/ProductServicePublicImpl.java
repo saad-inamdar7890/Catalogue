@@ -94,17 +94,26 @@ public class ProductServicePublicImpl implements ProductServicePublic {
 
 
     @Override
-@Transactional
-public void deleteProductWithImage(String article, String colour) {
-    Product product = findByArticleAndColour(article, colour);
-    if (product != null) {
-        File imageFile = new File(product.getImagePath());
-        if (imageFile.exists()) {
-            imageFile.delete();
+    @Transactional
+    public void deleteProductWithImage(String article, String colour) {
+        Product product = findByArticleAndColour(article, colour);
+        if (product != null) {
+            File imageFile = new File(product.getImagePath());
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+            deleteProduct(article, colour);
         }
-        deleteProduct(article, colour);
     }
+
+   private void deleteProduct(String article, String colour) {
+    ProductId productId = new ProductId(article, colour);
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+    productRepository.delete(product);
 }
+
+
     @Override
     @Transactional
     public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {

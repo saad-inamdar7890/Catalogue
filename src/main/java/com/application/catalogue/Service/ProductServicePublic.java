@@ -16,7 +16,6 @@ public interface ProductServicePublic {
     List<Product> getProductsByCategory(String category);
     List<Product> getProductsByGender(String gender);
     Product updateProduct(Product product, String article, String colour);
-
     Product findByArticle(String article);
     List<Product> getProductsByGenderAndCategory(String gender, String category);
     List<Product> searchProducts(String brand, String article);
