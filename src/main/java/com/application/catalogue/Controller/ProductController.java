@@ -35,73 +35,10 @@ public class ProductController {
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<String> createProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) {
-        try {
-            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
-            File directory = new File(directoryPath);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            String imagePath = directoryPath + File.separator + image.getOriginalFilename();
-            File imageFile = new File(imagePath);
-            image.transferTo(imageFile);
-
-            Product product = new Product();
-            product.setArticle(productParams.get("article"));
-            product.setColour(productParams.get("colour"));
-            product.setBrand(productParams.get("brand"));
-            product.setRate(Float.parseFloat(productParams.get("rate")));
-            product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
-            product.setGender(productParams.get("gender"));
-            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
-            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
-            product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
-            product.setCategory(productParams.get("category"));
-            product.setImagePath(imagePath);
-
-            productServicePublic.createProduct(product);
-            return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Error saving image", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error creating product", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping("/{article}")
-    public ResponseEntity<String> updateProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image, @PathVariable String article) {
-        try {
-            Product product = new Product();
-            product.setArticle(productParams.get("article"));
-            product.setColour(productParams.get("colour"));
-            product.setBrand(productParams.get("brand"));
-            product.setRate(Float.parseFloat(productParams.get("rate")));
-            product.setSizeRange(String.valueOf(new ObjectMapper().readValue(productParams.get("size_range"), new TypeReference<List<String>>() {})));
-            product.setGender(productParams.get("gender"));
-            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
-            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
-            product.setDefinedDate(LocalDate.parse(productParams.get("defined_date")).atStartOfDay());
-            product.setCategory(productParams.get("category"));
-
-            productServicePublic.updateProductWithImage(product, article, image);
-            return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Error saving image", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error updating product", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @DeleteMapping("/{article}")
-    public ResponseEntity<String> deleteProduct(@PathVariable String article) {
-        try {
-            productServicePublic.deleteProductWithImage(article);
-            return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting product", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @GetMapping("/api/public/products/registered/within-7-days")
+    public ResponseEntity<List<Product>> getProductsRegisteredWithin7Days() {
+        List<Product> products = productServicePublic.getProductsRegisteredWithin7Days();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @GetMapping("/by-gender-and-category")
