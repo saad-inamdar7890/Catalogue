@@ -76,4 +76,10 @@ public class ProductController {
         List<String> brands = productServicePublic.searchBrands(brand);
         return new ResponseEntity<>(brands, HttpStatus.OK);
     }
+
+    @GetMapping("/brands")
+    public ResponseEntity<List<String>> getAllBrands() {
+        List<String> brands = productServicePublic.getAllBrands();
+        return new ResponseEntity<>(brands, HttpStatus.OK);
+    }
 }

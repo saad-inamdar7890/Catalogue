@@ -93,20 +93,18 @@ public class ProductServicePublicImpl implements ProductServicePublic {
     }
 
 
-
     @Override
-    @Transactional
-    public void deleteProductWithImage(String article) {
-        Product product = findByArticle(article);
-        if (product != null) {
-            File imageFile = new File(product.getImagePath());
-            if (imageFile.exists()) {
-                imageFile.delete();
-            }
-            deleteProduct(article);
+@Transactional
+public void deleteProductWithImage(String article, String colour) {
+    Product product = findByArticleAndColour(article, colour);
+    if (product != null) {
+        File imageFile = new File(product.getImagePath());
+        if (imageFile.exists()) {
+            imageFile.delete();
         }
+        deleteProduct(article, colour);
     }
-
+}
     @Override
     @Transactional
     public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {
@@ -149,4 +147,25 @@ public class ProductServicePublicImpl implements ProductServicePublic {
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public List<String> getAllBrands() {
+        return productRepository.findAll()
+                .stream()
+                .map(Product::getBrand)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    @Transactional
+    public Product updateProduct(Product product, String article, String colour) {
+        ProductId productId = new ProductId(article, colour);
+        Product savedProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
+        product.setArticle(article);
+        product.setColour(colour);
+        return productRepository.save(product);
+    }
 }

@@ -6,7 +6,10 @@ import com.application.catalogue.Repository.ImageRepository;
 import com.application.catalogue.Repository.ProductRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +81,74 @@ public class ImageService {
     public boolean deleteImageByProductArticle(String article, Long imageId) {
         if (imageRepository.existsById(imageId)) {
             imageRepository.deleteById(imageId);
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public Image createImageByProductArticle(String article, String colour, MultipartFile imageFile) throws IOException {
+        Product product = productRepository.findByArticleAndColour(article, colour);
+        if (product != null) {
+            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+            File directory = new File(directoryPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String imagePath = directoryPath + File.separator + imageFile.getOriginalFilename();
+            File file = new File(imagePath);
+            imageFile.transferTo(file);
+
+            Image image = new Image();
+            image.setProduct(product);
+            image.setImagePath(imagePath);
+            return imageRepository.save(image);
+        }
+        return null;
+    }
+
+    @Transactional
+    public Image updateImageByProductArticle(String article, String colour, MultipartFile imageFile) throws IOException {
+        Product product = productRepository.findByArticleAndColour(article, colour);
+        if (product != null) {
+            List<Image> images = imageRepository.findByProductArticleAndProductColour(article, colour);
+            if (!images.isEmpty()) {
+                Image image = images.get(0);
+                String oldImagePath = image.getImagePath();
+                File oldImageFile = new File(oldImagePath);
+                if (oldImageFile.exists()) {
+                    oldImageFile.delete();
+                }
+
+                String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+                File directory = new File(directoryPath);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                String imagePath = directoryPath + File.separator + imageFile.getOriginalFilename();
+                File file = new File(imagePath);
+                imageFile.transferTo(file);
+
+                image.setImagePath(imagePath);
+                return imageRepository.save(image);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public boolean deleteImageByProductArticle(String article, String colour) {
+        List<Image> images = imageRepository.findByProductArticleAndProductColour(article, colour);
+        if (!images.isEmpty()) {
+            Image image = images.get(0);
+            String imagePath = image.getImagePath();
+            File imageFile = new File(imagePath);
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+            imageRepository.delete(image);
             return true;
         }
         return false;
