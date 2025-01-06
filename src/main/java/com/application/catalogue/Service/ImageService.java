@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ImageService {
@@ -29,8 +28,7 @@ public class ImageService {
     }
 
     public Image getImageById(Long id) {
-        Optional<Image> image = imageRepository.findById(id);
-        return image.orElse(null);
+        return imageRepository.findById(id).orElse(null);
     }
 
     @Transactional
@@ -60,30 +58,6 @@ public class ImageService {
 
     public List<Image> getImagesByProductArticle(String article, String colour) {
         return imageRepository.findByProductArticleAndProductColour(article, colour);
-    }
-
-    @Transactional
-    public Image createImageByProductArticle(String article, Image image) {
-        Product product = productRepository.findByArticle(article);
-        image.setProduct(product);
-        return imageRepository.save(image);
-    }
-
-    @Transactional
-    public Image updateImageByProductArticle(String article, Long imageId, Image image) {
-        Product product = productRepository.findByArticle(article);
-        image.setId(imageId);
-        image.setProduct(product);
-        return imageRepository.save(image);
-    }
-
-    @Transactional
-    public boolean deleteImageByProductArticle(String article, Long imageId) {
-        if (imageRepository.existsById(imageId)) {
-            imageRepository.deleteById(imageId);
-            return true;
-        }
-        return false;
     }
 
     @Transactional
@@ -139,10 +113,9 @@ public class ImageService {
     }
 
     @Transactional
-    public boolean deleteImageByProductArticle(String article, String colour) {
-        List<Image> images = imageRepository.findByProductArticleAndProductColour(article, colour);
-        if (!images.isEmpty()) {
-            Image image = images.get(0);
+    public boolean deleteImageByProductArticle(String article, String colour, Long imageId) {
+        Image image = imageRepository.findById(imageId).orElse(null);
+        if (image != null && image.getProduct().getArticle().equals(article) && image.getProduct().getColour().equals(colour)) {
             String imagePath = image.getImagePath();
             File imageFile = new File(imagePath);
             if (imageFile.exists()) {

@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -14,8 +16,12 @@ import java.util.List;
 @RequestMapping("/api/public/images")
 public class ImageController {
 
+    private final ImageService imageService;
+
     @Autowired
-    private ImageService imageService;
+    public ImageController(ImageService imageService) {
+        this.imageService = imageService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Image>> getAllImages() {
@@ -28,21 +34,29 @@ public class ImageController {
         return new ResponseEntity<>(image, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Image> createImage(@RequestBody Image image) {
-        Image createdImage = imageService.createImage(image);
-        return new ResponseEntity<>(createdImage, HttpStatus.CREATED);
+    @PostMapping("/by-product/{article}/{colour}")
+    public ResponseEntity<Image> createImageByProductArticle(@PathVariable String article, @PathVariable String colour, @RequestParam("imageFile") MultipartFile imageFile) {
+        try {
+            Image createdImage = imageService.createImageByProductArticle(article, colour, imageFile);
+            return new ResponseEntity<>(createdImage, HttpStatus.CREATED);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Image> updateImage(@PathVariable Long id, @RequestBody Image image) {
-        Image updatedImage = imageService.updateImage(id, image);
-        return new ResponseEntity<>(updatedImage, HttpStatus.OK);
+    @PutMapping("/by-product/{article}/{colour}/{imageId}")
+    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId, @RequestParam("imageFile") MultipartFile imageFile) {
+        try {
+            Image updatedImage = imageService.updateImageByProductArticle(article, colour, imageFile);
+            return new ResponseEntity<>(updatedImage, HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
-        boolean isDeleted = imageService.deleteImage(id);
+    @DeleteMapping("/by-product/{article}/{colour}/{imageId}")
+    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) {
+        boolean isDeleted = imageService.deleteImageByProductArticle(article, colour, imageId);
         return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -51,23 +65,5 @@ public class ImageController {
         List<Image> images = imageService.getImagesByProductArticle(article, colour);
         List<String> imagePaths = images.stream().map(Image::getImagePath).toList();
         return new ResponseEntity<>(imagePaths, HttpStatus.OK);
-    }
-
-    @PostMapping("/by-product/{article}/{colour}")
-    public ResponseEntity<Image> createImageByProductArticle(@PathVariable String article, @PathVariable String colour, @RequestBody Image image) {
-        Image createdImage = imageService.createImageByProductArticle(article, image);
-        return new ResponseEntity<>(createdImage, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/by-product/{article}/{colour}/{imageId}")
-    public ResponseEntity<Image> updateImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId, @RequestBody Image image) {
-        Image updatedImage = imageService.updateImageByProductArticle(article,  imageId, image);
-        return new ResponseEntity<>(updatedImage, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/by-product/{article}/{imageId}")
-    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) {
-        boolean isDeleted = imageService.deleteImageByProductArticle(article, imageId);
-        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
