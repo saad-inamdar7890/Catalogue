@@ -55,7 +55,7 @@ public class ImageController {
     }
 
     @DeleteMapping("/by-product/{article}/{colour}/{imageId}")
-    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) {
+    public ResponseEntity<Void> deleteImageByProductArticle(@PathVariable String article, @PathVariable String colour, @PathVariable Long imageId) throws IOException {
         boolean isDeleted = imageService.deleteImageByProductArticle(article, colour, imageId);
         return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

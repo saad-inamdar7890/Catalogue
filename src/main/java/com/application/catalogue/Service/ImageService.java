@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -64,15 +67,15 @@ public class ImageService {
     public Image createImageByProductArticle(String article, String colour, MultipartFile imageFile) throws IOException {
         Product product = productRepository.findByArticleAndColour(article, colour);
         if (product != null) {
-            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
-            File directory = new File(directoryPath);
-            if (!directory.exists()) {
-                directory.mkdirs();
+            String directoryPath = "/app/images/"; // Railway server directory
+            Path directory = Paths.get(directoryPath);
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
             }
 
-            String imagePath = directoryPath + File.separator + imageFile.getOriginalFilename();
-            File file = new File(imagePath);
-            imageFile.transferTo(file);
+            String imagePath = directoryPath + imageFile.getOriginalFilename();
+            Path filePath = Paths.get(imagePath);
+            Files.copy(imageFile.getInputStream(), filePath);
 
             Image image = new Image();
             image.setProduct(product);
@@ -90,20 +93,20 @@ public class ImageService {
             if (!images.isEmpty()) {
                 Image image = images.get(0);
                 String oldImagePath = image.getImagePath();
-                File oldImageFile = new File(oldImagePath);
-                if (oldImageFile.exists()) {
-                    oldImageFile.delete();
+                Path oldImageFile = Paths.get(oldImagePath);
+                if (Files.exists(oldImageFile)) {
+                    Files.delete(oldImageFile);
                 }
 
-                String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
-                File directory = new File(directoryPath);
-                if (!directory.exists()) {
-                    directory.mkdirs();
+                String directoryPath = "/app/images/"; // Railway server directory
+                Path directory = Paths.get(directoryPath);
+                if (!Files.exists(directory)) {
+                    Files.createDirectories(directory);
                 }
 
-                String imagePath = directoryPath + File.separator + imageFile.getOriginalFilename();
-                File file = new File(imagePath);
-                imageFile.transferTo(file);
+                String imagePath = directoryPath + imageFile.getOriginalFilename();
+                Path filePath = Paths.get(imagePath);
+                Files.copy(imageFile.getInputStream(), filePath);
 
                 image.setImagePath(imagePath);
                 return imageRepository.save(image);
@@ -113,13 +116,13 @@ public class ImageService {
     }
 
     @Transactional
-    public boolean deleteImageByProductArticle(String article, String colour, Long imageId) {
+    public boolean deleteImageByProductArticle(String article, String colour, Long imageId) throws IOException {
         Image image = imageRepository.findById(imageId).orElse(null);
         if (image != null && image.getProduct().getArticle().equals(article) && image.getProduct().getColour().equals(colour)) {
             String imagePath = image.getImagePath();
-            File imageFile = new File(imagePath);
-            if (imageFile.exists()) {
-                imageFile.delete();
+            Path imageFile = Paths.get(imagePath);
+            if (Files.exists(imageFile)) {
+                Files.delete(imageFile);
             }
             imageRepository.delete(image);
             return true;
