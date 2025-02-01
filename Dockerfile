@@ -2,6 +2,9 @@
 FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 
+# Set the JAVA_HOME environment variable
+ENV JAVA_HOME /usr/local/openjdk-17
+
 # Copy the Maven wrapper and make it executable
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
@@ -12,7 +15,9 @@ RUN ./mvnw dependency:go-offline
 
 # Copy the source code and build the application
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+
+# Run the build and output logs to a file for debugging
+RUN ./mvnw clean package -DskipTests > build.log 2>&1 || (cat build.log && false)
 
 ## Stage 2: Run the application
 FROM openjdk:17-jdk-slim
