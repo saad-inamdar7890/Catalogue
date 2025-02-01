@@ -19,9 +19,6 @@ COPY src ./src
 # Run the build and output logs to a file for debugging
 RUN ./mvnw clean package -DskipTests
 
-# Print the build log to the console
-RUN cat build.log
-
 ## Stage 2: Run the application
 FROM openjdk:17-jdk-slim
 WORKDIR /app
