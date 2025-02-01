@@ -3,7 +3,7 @@ FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 
 # Set the JAVA_HOME environment variable
-ENV JAVA_HOME /usr/local/openjdk-17
+#ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk
 
 # Copy the Maven wrapper and make it executable
 COPY .mvn/ .mvn
