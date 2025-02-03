@@ -38,43 +38,51 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/products/save")
-    public ResponseEntity<String> saveProduct(@RequestParam Map<String, String> productParams,
-                                              @RequestParam("image") MultipartFile image) throws IOException {
-        String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        String imagePath = directoryPath + File.separator + image.getOriginalFilename();
-        File imageFile = new File(imagePath);
-        image.transferTo(imageFile);
-
-        Product product = new Product();
-        product.setArticle(productParams.get("article"));
-        product.setColour(productParams.get("colour"));
-        product.setBrand(productParams.get("brand"));
-        product.setRate(Float.parseFloat(productParams.get("rate")));
-        product.setSizeRange(productParams.get("size_range"));
-        product.setGender(productParams.get("gender"));
-        product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
-        product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
-        product.setCategory(productParams.get("category"));
-        product.setImagePath(imagePath);
-
-        productServicePublic.createProduct(product);
-
-        return new ResponseEntity<>("Product saved successfully", HttpStatus.OK);
-    }
-
     @PutMapping("/products/{article}/{colour}")
     public ResponseEntity<String> updateProduct(@PathVariable String article, @PathVariable String colour, @RequestBody Product product) {
-        productServicePublic.updateProduct(product, article, colour);
-        return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+        try {
+            productServicePublic.updateProduct(product, article, colour);
+            return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            // Log the exception
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occurred while updating the product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
+    @PostMapping("/products/save")
+    public ResponseEntity<String> saveProduct(@RequestParam Map<String, String> productParams, @RequestParam("image") MultipartFile image) {
+        try {
+            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+            File directory = new File(directoryPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
 
+            String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+            File imageFile = new File(imagePath);
+            image.transferTo(imageFile);
+
+            Product product = new Product();
+            product.setArticle(productParams.get("article"));
+            product.setColour(productParams.get("colour"));
+            product.setBrand(productParams.get("brand"));
+            product.setRate(Float.parseFloat(productParams.get("rate")));
+            product.setSizeRange(productParams.get("size_range"));
+            product.setGender(productParams.get("gender"));
+            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+            product.setCategory(productParams.get("category"));
+            product.setImagePath("/images/" + image.getOriginalFilename());
+
+            productServicePublic.createProduct(product);
+
+            return new ResponseEntity<>("Product saved successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occurred while saving the product", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PutMapping("/products/{article}/{colour}/image")
     public ResponseEntity<String> updateProductWithImage(@PathVariable String article, @PathVariable String colour, @RequestParam("image") MultipartFile image) throws IOException {
