@@ -129,4 +129,8 @@ public class ImageService {
         }
         return false;
     }
+
+    public void saveImage(Image img) {
+        imageRepository.save(img);
+    }
 }

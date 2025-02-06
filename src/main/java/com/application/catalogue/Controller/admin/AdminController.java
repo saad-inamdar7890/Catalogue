@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -111,4 +111,133 @@ public class AdminController {
             return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("/products/saveWithImages")
+    public ResponseEntity<String> saveProductWithImages(
+            @RequestParam Map<String, String> productParams,
+            @RequestParam("defaultImage") MultipartFile defaultImage,
+            @RequestParam("images") MultipartFile[] images) {
+        try {
+            // Save default image
+            String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+            File directory = new File(directoryPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String defaultImagePath = directoryPath + File.separator + defaultImage.getOriginalFilename();
+            File defaultImageFile = new File(defaultImagePath);
+            defaultImage.transferTo(defaultImageFile);
+
+            // Create and save product
+            Product product = new Product();
+            product.setArticle(productParams.get("article"));
+            product.setColour(productParams.get("colour"));
+            product.setBrand(productParams.get("brand"));
+            product.setRate(Float.parseFloat(productParams.get("rate")));
+            product.setSizeRange(productParams.get("size_range"));
+            product.setGender(productParams.get("gender"));
+            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+            product.setTrend(Boolean.parseBoolean(productParams.get("trend")));
+            product.setCategory(productParams.get("category"));
+            product.setImagePath("/images/" + defaultImage.getOriginalFilename());
+
+            productServicePublic.createProduct(product);
+
+            // Save additional images
+            for (MultipartFile image : images) {
+                String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+                File imageFile = new File(imagePath);
+                image.transferTo(imageFile);
+
+                Image img = new Image();
+                img.setImagePath("/images/" + image.getOriginalFilename());
+                img.setProduct(product);
+                imageService.saveImage(img);
+            }
+
+            return new ResponseEntity<>("Product and images saved successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occurred while saving the product and images", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping("/products/{article}/{colour}/images")
+    public ResponseEntity<String> updateProductWithImages(
+            @PathVariable String article,
+            @PathVariable String colour,
+            @RequestParam("defaultImage") MultipartFile defaultImage,
+            @RequestParam("images") MultipartFile[] images) {
+        try {
+            Product product = productServicePublic.findByArticleAndColour(article, colour);
+            if (product != null) {
+                // Update default image
+                String directoryPath = new File("src/main/resources/static/images/").getAbsolutePath();
+                File directory = new File(directoryPath);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                String defaultImagePath = directoryPath + File.separator + defaultImage.getOriginalFilename();
+                File defaultImageFile = new File(defaultImagePath);
+                defaultImage.transferTo(defaultImageFile);
+                product.setImagePath("/images/" + defaultImage.getOriginalFilename());
+                productServicePublic.updateProduct(product, article, colour);
+
+                // Get existing images
+                List<Image> existingImages = imageService.getImagesByProductArticle(article, colour);
+
+                // Update additional images
+                for (MultipartFile image : images) {
+                    String imagePath = directoryPath + File.separator + image.getOriginalFilename();
+                    File imageFile = new File(imagePath);
+                    image.transferTo(imageFile);
+
+                    Image img = existingImages.stream()
+                            .filter(i -> i.getImagePath().equals("/images/" + image.getOriginalFilename()))
+                            .findFirst()
+                            .orElse(new Image());
+                    img.setImagePath("/images/" + image.getOriginalFilename());
+                    img.setProduct(product);
+                    imageService.saveImage(img);
+                }
+
+                // Delete removed images
+                for (Image existingImage : existingImages) {
+                    boolean imageExists = false;
+                    for (MultipartFile image : images) {
+                        if (existingImage.getImagePath().equals("/images/" + image.getOriginalFilename())) {
+                            imageExists = true;
+                            break;
+                        }
+                    }
+                    if (!imageExists) {
+                        String imagePath = directoryPath + File.separator + existingImage.getImagePath().substring(8);
+                        File imageFile = new File(imagePath);
+                        if (imageFile.exists()) {
+                            imageFile.delete();
+                        }
+                        imageService.deleteImage(existingImage.getId());
+                    }
+                }
+
+                return new ResponseEntity<>("Product and images updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occurred while updating the product and images", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+
+
 }
+
+
+
