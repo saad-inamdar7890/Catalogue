@@ -26,4 +26,6 @@ public interface ProductServicePublic {
     void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException;
     List<String> getAllBrands();
     Product findByArticleAndColour(String article, String colour);
+    void deleteProduct(String article, String colour);
+    void deleteProductWithImages(String article, String colour);
 }

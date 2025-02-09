@@ -23,6 +23,9 @@ public class ProductServicePublicImpl implements ProductServicePublic {
     @Autowired
     private ProductRepo productRepository;
 
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
+
     @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -106,14 +109,6 @@ public class ProductServicePublicImpl implements ProductServicePublic {
         }
     }
 
-   private void deleteProduct(String article, String colour) {
-    ProductId productId = new ProductId(article, colour);
-    Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
-    productRepository.delete(product);
-}
-
-
     @Override
     @Transactional
     public void updateProductWithImage(Product product, String article, MultipartFile image) throws IOException {
@@ -167,14 +162,41 @@ public class ProductServicePublicImpl implements ProductServicePublic {
     }
 
 
+
     @Override
     @Transactional
     public Product updateProduct(Product product, String article, String colour) {
         ProductId productId = new ProductId(article, colour);
-        Product savedProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource not found"));
-        product.setArticle(article);
-        product.setColour(colour);
-        return productRepository.save(product);
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        existingProduct.setBrand(product.getBrand());
+        existingProduct.setRate(product.getRate());
+        existingProduct.setSizeRange(product.getSizeRange());
+        existingProduct.setGender(product.getGender());
+        existingProduct.setBundleSize(product.getBundleSize());
+        existingProduct.setStock(product.isStock());
+        existingProduct.setCategory(product.getCategory());
+        if (product.getImagePath() != null) {
+            existingProduct.setImagePath(product.getImagePath());
+        }
+        return productRepository.save(existingProduct);
+    }
+
+    @Override
+    public void deleteProduct(String article, String colour) {
+        productRepository.deleteById(new ProductId(article, colour));
+    }
+
+    @Override
+    @Transactional
+    public void deleteProductWithImages(String article, String colour) {
+        Product product = findByArticleAndColour(article, colour);
+        if (product != null) {
+            // Delete the image from the Google Cloud Storage bucket
+            googleCloudStorageService.deleteFile(product.getImagePath());
+
+            // Delete the product from the database
+            deleteProduct(article, colour);
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.application.catalogue.Product.Image;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Repository.ImageRepository;
 import com.application.catalogue.Repository.ProductRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,9 +18,15 @@ import java.util.List;
 
 @Service
 public class ImageService {
-
-    private final ImageRepository imageRepository;
+    @Autowired
     private final ProductRepo productRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
+
 
     public ImageService(ImageRepository imageRepository, ProductRepo productRepository) {
         this.imageRepository = imageRepository;
@@ -130,7 +137,17 @@ public class ImageService {
         return false;
     }
 
+    @Transactional
+    public void deleteImageById(Long id) throws IOException {
+        Image image = imageRepository.findById(id).orElseThrow(() -> new RuntimeException("Image not found"));
+        // Delete the image from the Google Cloud Storage bucket
+        googleCloudStorageService.deleteFile(image.getImagePath());
+        imageRepository.deleteById(id);
+    }
+
+    @Transactional
     public void saveImage(Image img) {
         imageRepository.save(img);
     }
+
 }

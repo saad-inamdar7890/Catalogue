@@ -27,10 +27,11 @@ public class Product implements Serializable {
     private String sizeRange;
     private String gender;
     private int bundleSize;
-    private boolean trend;
+    private boolean stock;
     private LocalDateTime definedDate;
     private String category;
     private String imagePath;
+    private float MRP;
 
     @PrePersist
     protected void onCreate() {
@@ -93,12 +94,20 @@ public class Product implements Serializable {
         this.bundleSize = bundleSize;
     }
 
-    public boolean isTrend() {
-        return trend;
+    public float getMRP() {
+        return MRP;
     }
 
-    public void setTrend(boolean trend) {
-        this.trend = trend;
+    public void setMRP(float MRP) {
+        this.MRP = MRP;
+    }
+
+    public boolean isStock() {
+        return stock;
+    }
+
+    public void setStock(boolean stock) {
+        this.stock = stock;
     }
 
     public LocalDateTime getDefinedDate() {

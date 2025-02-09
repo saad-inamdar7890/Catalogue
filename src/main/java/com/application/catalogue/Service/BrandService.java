@@ -14,6 +14,10 @@ public class BrandService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
+
+
     public List<Brand> getAllBrands() {
         return brandRepository.findAll();
     }
@@ -34,6 +38,9 @@ public class BrandService {
     }
 
     public void deleteBrand(Long id) {
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new RuntimeException("Brand not found"));
+        // Delete the image from the Google Cloud Storage bucket
+        googleCloudStorageService.deleteFile(brand.getImagePath());
         brandRepository.deleteById(id);
     }
 }
