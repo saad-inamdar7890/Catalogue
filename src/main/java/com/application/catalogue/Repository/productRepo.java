@@ -3,6 +3,8 @@ package com.application.catalogue.Repository;
 import com.application.catalogue.Product.Product;
 import com.application.catalogue.Product.ProductId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -24,8 +26,9 @@ public interface ProductRepo extends JpaRepository<Product, ProductId> {
 
     List<Product> findByBrandContainingIgnoreCase(String brand);
     List<Product> findByArticleContainingIgnoreCase(String article);
-    void deleteProduct(String article, String colour);
 
+    @Query("DELETE FROM Product p WHERE p.article = :article AND p.colour = :colour")
+    void deleteProduct(@Param("article") String article, @Param("colour") String colour);
 
     Product findByArticleAndColour(String article, String colour);
 }

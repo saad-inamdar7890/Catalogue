@@ -82,4 +82,11 @@ public class ProductController {
         List<String> brands = productServicePublic.getAllBrands();
         return new ResponseEntity<>(brands, HttpStatus.OK);
     }
+
+    @GetMapping("/by-brand/{brandName}")
+    public ResponseEntity<List<Product>> getProductsByBrandName(@PathVariable String brandName) {
+        List<Product> products = productServicePublic.getProductsByBrand(brandName);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
 }

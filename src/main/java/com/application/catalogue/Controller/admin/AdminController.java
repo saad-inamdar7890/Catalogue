@@ -49,54 +49,13 @@ public class AdminController {
     }
 
 
-
-    @PostMapping("/products/saveWithImages")
-    public ResponseEntity<String> saveProductWithImages(
-            @RequestParam Map<String, String> productParams,
-            @RequestParam("defaultImage") MultipartFile defaultImage,
-            @RequestParam("images") MultipartFile[] images) {
-        try {
-            String bucketName = System.getenv("GCS_BUCKET_NAME"); // Ensure this environment variable is set
-            String defaultImageUrl = googleCloudStorageService.uploadFile(defaultImage, bucketName);
-
-            // Create and save product
-            Product product = new Product();
-            product.setArticle(productParams.get("article"));
-            product.setColour(productParams.get("colour"));
-            product.setBrand(productParams.get("brand"));
-            product.setRate(Float.parseFloat(productParams.get("rate")));
-            product.setSizeRange(productParams.get("size_range"));
-            product.setGender(productParams.get("gender"));
-            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
-            product.setStock(Boolean.parseBoolean(productParams.get("stock"))); // Changed from trend
-            product.setCategory(productParams.get("category"));
-            product.setImagePath(defaultImageUrl); // Save the GCS URL
-
-            productServicePublic.createProduct(product);
-
-            // Save additional images
-            for (MultipartFile image : images) {
-                String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
-
-                Image img = new Image();
-                img.setImagePath(imageUrl); // Save the GCS URL
-                img.setProduct(product);
-                imageService.saveImage(img);
-            }
-
-            return new ResponseEntity<>("Product and images saved successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("An error occurred while saving the product and images", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PutMapping("/products/update")
     public ResponseEntity<String> updateProduct(
             @RequestParam Map<String, String> productParams,
             @RequestParam("defaultImage") MultipartFile defaultImage,
-            @RequestParam("images") MultipartFile[] images,
-            @RequestParam("removeImageIds") List<Long> removeImageIds) {
+            @RequestParam(value = "images", required = false) MultipartFile[] images,
+            @RequestParam(value = "replaceImageIds", required = false) Map<Long, MultipartFile> replaceImageIds,
+            @RequestParam(value = "removeImageIds", required = false) List<Long> removeImageIds) {
         try {
             String bucketName = System.getenv("GCS_BUCKET_NAME"); // Ensure this environment variable is set
 
@@ -124,24 +83,88 @@ public class AdminController {
             productServicePublic.updateProduct(product, productParams.get("article"), productParams.get("colour"));
 
             // Remove specified images
-            for (Long imageId : removeImageIds) {
-                imageService.deleteImageById(imageId);
+            if (removeImageIds != null) {
+                for (Long imageId : removeImageIds) {
+                    imageService.deleteImageById(imageId);
+                }
+            }
+
+            // Replace specified images
+            if (replaceImageIds != null) {
+                for (Map.Entry<Long, MultipartFile> entry : replaceImageIds.entrySet()) {
+                    Long imageId = entry.getKey();
+                    MultipartFile newImage = entry.getValue();
+                    Image oldImage = imageService.getImageById(imageId);
+                    if (oldImage != null) {
+                        // Delete the old image from the Google Cloud Storage bucket
+                        googleCloudStorageService.deleteFile(oldImage.getImagePath());
+                        // Upload the new image
+                        String newImageUrl = googleCloudStorageService.uploadFile(newImage, bucketName);
+                        // Update the image record
+                        oldImage.setImagePath(newImageUrl);
+                        imageService.saveImage(oldImage);
+                    }
+                }
             }
 
             // Save additional images
-            for (MultipartFile image : images) {
-                String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
+            if (images != null) {
+                for (MultipartFile image : images) {
+                    String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
 
-                Image img = new Image();
-                img.setImagePath(imageUrl); // Save the GCS URL
-                img.setProduct(product);
-                imageService.saveImage(img);
+                    Image img = new Image();
+                    img.setImagePath(imageUrl); // Save the GCS URL
+                    img.setProduct(product);
+                    imageService.saveImage(img);
+                }
             }
 
             return new ResponseEntity<>("Product and images updated successfully", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("An error occurred while updating the product and images", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/products/saveWithImages")
+    public ResponseEntity<String> saveProductWithImages(
+            @RequestParam Map<String, String> productParams,
+            @RequestParam("defaultImage") MultipartFile defaultImage,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
+        try {
+            String bucketName = System.getenv("GCS_BUCKET_NAME"); // Ensure this environment variable is set
+            String defaultImageUrl = googleCloudStorageService.uploadFile(defaultImage, bucketName);
+
+            // Create and save product
+            Product product = new Product();
+            product.setArticle(productParams.get("article"));
+            product.setColour(productParams.get("colour"));
+            product.setBrand(productParams.get("brand"));
+            product.setRate(Float.parseFloat(productParams.get("rate")));
+            product.setSizeRange(productParams.get("size_range"));
+            product.setGender(productParams.get("gender"));
+            product.setBundleSize(Integer.parseInt(productParams.get("bundle_size")));
+            product.setStock(Boolean.parseBoolean(productParams.get("stock"))); // Changed from trend
+            product.setCategory(productParams.get("category"));
+            product.setImagePath(defaultImageUrl); // Save the GCS URL
+
+            productServicePublic.createProduct(product);
+
+            // Save additional images
+            if (images != null) {
+                for (MultipartFile image : images) {
+                    String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
+
+                    Image img = new Image();
+                    img.setImagePath(imageUrl); // Save the GCS URL
+                    img.setProduct(product);
+                    imageService.saveImage(img);
+                }
+            }
+
+            return new ResponseEntity<>("Product and images saved successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("An error occurred while saving the product and images", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -157,22 +180,44 @@ public class AdminController {
     }
 
     @PostMapping("/brands/save")
-    public ResponseEntity<String> saveBrand(@RequestBody Brand brand) {
+    public ResponseEntity<String> saveBrand(
+            @RequestParam("name") String name,
+            @RequestParam("image") MultipartFile image) {
         try {
+            String bucketName = System.getenv("GCS_BUCKET_NAME"); // Ensure this environment variable is set
+            String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
+
+            Brand brand = new Brand();
+            brand.setName(name);
+            brand.setImagePath(imageUrl); // Save the GCS URL
+
             brandService.createBrand(brand);
             return new ResponseEntity<>("Brand saved successfully", HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("An error occurred while saving the brand", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/brands/update/{id}")
-    public ResponseEntity<String> updateBrand(@PathVariable Long id, @RequestBody Brand brandDetails) {
+    public ResponseEntity<String> updateBrand(
+            @PathVariable Long id,
+            @RequestParam("name") String name,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
         try {
-            brandService.updateBrand(id, brandDetails);
+            Brand brand = brandService.getBrandById(id).orElseThrow(() -> new RuntimeException("Brand not found"));
+
+            brand.setName(name);
+
+            if (image != null && !image.isEmpty()) {
+                String bucketName = System.getenv("GCS_BUCKET_NAME"); // Ensure this environment variable is set
+                String imageUrl = googleCloudStorageService.uploadFile(image, bucketName);
+                brand.setImagePath(imageUrl); // Update the GCS URL
+            }
+
+            brandService.updateBrand(id, brand);
             return new ResponseEntity<>("Brand updated successfully", HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("An error occurred while updating the brand", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -181,7 +226,14 @@ public class AdminController {
     @DeleteMapping("/brands/delete/{id}")
     public ResponseEntity<String> deleteBrand(@PathVariable Long id) {
         try {
+            Brand brand = brandService.getBrandById(id).orElseThrow(() -> new RuntimeException("Brand not found"));
+
+            // Delete the image from Google Cloud Storage
+            googleCloudStorageService.deleteFile(brand.getImagePath());
+
+            // Delete the brand from the database
             brandService.deleteBrand(id);
+
             return new ResponseEntity<>("Brand deleted successfully", HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
